@@ -28,11 +28,15 @@ class Book:
         return f"{self.title} by {self.author}\nGenre: {self.genre}"
 
     def ShowUserOpinion(self):
-        print(f"{self.title} by {self.author}\nGenre: {self.genre}\nRate: {self.rate}\n{self.review}")
+        print(f"{"-"*30}\n{self.title} by {self.author}\nGenre: {self.genre}\nRate: {self.rate}\n{self.review}\n{"-"*30}")
 
     def AppropriateFormatForWriting(self):
         return f"{self.title}{PROPERTIES_SPLITTER}{self.author}{PROPERTIES_SPLITTER}{self.genre}\
 {PROPERTIES_SPLITTER}{self.rate}{PROPERTIES_SPLITTER}{self.review.replace("\n", NEWLINE_REPLACMENT)}\n"
+
+    def __lt__(self, other):
+        return self.title < other.title
+
 '''
     @property
     def title(self):
@@ -84,8 +88,11 @@ def GeneralStringCheck(text: str):
         else:
             return text
 
-def PrintBooks(listOfBooks: list[Book]):
+def clearConsole():
     os.system("cls" if os.name == "nt" else "clear")
+
+def PrintBooks(listOfBooks: list[Book]):
+    clearConsole()
     PrintAppName("Local Library")
     for book in listOfBooks:
         print(book.ShowUserOpinion(), end="\n\n")
@@ -119,14 +126,38 @@ def appendingBooks(file) -> list[Book]:
             list.append(book)
         return list
 
+def sortByTitle(books: list[Book]):
+    return sorted(books, key=lambda s: s.title)
+
+
+def sortByRate(books: list[Book]):
+    return sorted(books, key=lambda s: s.rate)
+
+def getExistingGenres(books: list[Book]):
+    return set([i for i in books])
+
+def filterByGenre(books: list[Book]):
+    clearConsole()
+    genres = sorted(getExistingGenres(books))
+    amountOfGenres = len(genres)
+    for i in range(amountOfGenres):
+        print(f"{i + 1} - {genres[i].genre}")
+    choice = TryParse(input("Choose genre: "), 1, amountOfGenres) - 1
+    basicGenre = genres[choice].genre
+    neededBooks = [book for book in books if book.genre == basicGenre]
+    PrintBooks(neededBooks)
+
+
 
 def __main__():
 
     crimeAndPunishment = Book("Crime and Punishment", "F.M.Dostoevsky", "Russian Classics", 10, "I love this book")
-    crimeAndPunishment2 = Book("Crime and Punishment2", "A.N.Dostoevsky", "American Classics", 10, "I love this book\nAnd I love my dear Lise")
+    crimeAndPunishment2 = Book("A Crime and Punishment2", "A.N.Dostoevsky", "American Classics", 10, "I love this book\nAnd I love my dear Lise")
+    crimeAndPunishment3 = Book("Bad book", "f. nigger", "Jap", 10, "I love this book\nAnd I love my dear Lise")
 
-    listOfBooks: list[Book] = [crimeAndPunishment]# get from file
+    listOfBooks: list[Book] = [crimeAndPunishment, crimeAndPunishment3]# get from file
     writeInFile(crimeAndPunishment2, listOfBooks)
+    listOfBooks = sortByTitle(listOfBooks)
 
     print("Local Library")
     choice = TryParse(input("1 - books by the Name, 2 - filter by genre, 3 - search for author, 4 - add new book, 5 - edit existing book, 0 - exit\n"), 0, 4)
@@ -134,7 +165,7 @@ def __main__():
         case 1:
             PrintBooks(listOfBooks)
         case 2:
-            print("jolyne")
+           filterByGenre(listOfBooks)
         case 3:
             print("jotaro")
         case 4:
